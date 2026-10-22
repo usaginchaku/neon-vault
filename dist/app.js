@@ -1,3 +1,4 @@
+import './viewport.js';
 import {createGame,CATALOG,BY_ID,REGIONS,ELEMENTS,GENERATES,CONTROLS,SLOT_SYMBOLS,RATES,SUMMON_COST,LOGIN_REWARDS} from './engine.js';
 import {RARITIES} from './data.js';
 const game=createGame(),$=(s,r=document)=>r.querySelector(s),icon=(n)=>`<svg aria-hidden="true"><use href="#i-${n}"/></svg>`,fmt=n=>Number(n).toLocaleString('ja-JP');
@@ -58,10 +59,10 @@ function missionsPage(){
 }
 
 function render(){sync();document.body.dataset.page=page;document.querySelectorAll('nav a').forEach(a=>{const active=a.dataset.page===page;a.classList.toggle('active',active);if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});$('#main').innerHTML=({home:homePage,summon:summonPage,collection:collectionPage,raid:explorationPage,arcade:slotsPage,missions:missionsPage}[page])();}
-function navigate(){const hash=location.hash.slice(1),next=({gamble:'arcade'}[hash]||hash);page=['home','summon','collection','raid','arcade','missions'].includes(next)?next:'home';if(page!=='raid'){stopAuto();stopFarm(false);}render();window.scrollTo(0,0);}
+function navigate(){const hash=location.hash.slice(1),next=({gamble:'arcade'}[hash]||hash);page=['home','summon','collection','raid','arcade','missions'].includes(next)?next:'home';if(page!=='raid'){stopAuto();stopFarm(false);}render();$('#main').scrollTop=0;}
 function modalHead(title){return `<div class="modal-header"><h2 id="modal-title">${title}</h2><button class="modal-close" data-action="close-modal" aria-label="閉じる">${icon('close')}</button></div>`;}
 function openModal(html,type){const d=$('#modal');activeModal=type;d.dataset.type=type;$('#modal-content').innerHTML=`<div class="modal-inner">${html}<div id="modal-feedback" class="modal-feedback" role="status" aria-live="polite"></div></div>`;if(!d.open){returnFocus=document.activeElement;d.showModal();}d.append($('#confetti'));d.scrollTop=0;}
-function closeModal(){if(activeModal==='charge'){finishReveal();return;}clearTimeout(revealTimer);$('#modal').close();activeModal=null;if(returnFocus?.isConnected)returnFocus.focus();}
+function closeModal(){if(activeModal==='charge'){finishReveal();return;}clearTimeout(revealTimer);$('#modal').close();activeModal=null;if(returnFocus?.isConnected)returnFocus.focus({preventScroll:true});}
 function showUnit(id){
  const u=BY_ID[id];if(!u)return;
  const s=game.state,o=s.collection[id],st=game.stats(id),cost=game.levelCost(id);
