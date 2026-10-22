@@ -38,7 +38,7 @@ export function createGame(storage=storageDefault(),random=Math.random,clock=()=
  const rng=()=>{let n;try{n=random();}catch{n=Math.random();}return Number.isFinite(n)?Math.min(1-Number.EPSILON,Math.max(0,n)):Math.random();};
  const add=(coins=0,shards=0)=>{state.coins=Math.min(1e12,state.coins+coins);state.shards=Math.min(1e9,state.shards+shards);};
  const history=entry=>{state.history.unshift({...entry,at:Date.now()});state.history.length=Math.min(50,state.history.length);};
- const stats=id=>{const u=BY_ID[id],o=state.collection[id];if(!u)return null;const level=o?.level||1,bt=o?.breakthrough||0,m=1+(level-1)*.055+bt*.12;return {hp:Math.round(u.hp*m),attack:Math.round(u.attack*m),level,breakthrough:bt,power:Math.round(u.hp*m/3+u.attack*m*3)};};
+ const stats=(id,preview={})=>{const u=BY_ID[id],o=state.collection[id];if(!u)return null;const level=Math.max(1,num(preview?.level,o?.level||1,30)),bt=num(preview?.breakthrough,o?.breakthrough||0,6),m=1+(level-1)*.055+bt*.12;return {hp:Math.round(u.hp*m),attack:Math.round(u.attack*m),level,breakthrough:bt,power:Math.round(u.hp*m/3+u.attack*m*3)};};
  const power=()=>state.squad.reduce((a,id)=>a+stats(id).power,0);
  const levelCost=id=>state.collection[id]?(state.collection[id].level>=30?0:8+state.collection[id].level*3):0;
  const copies=id=>Math.max(0,(state.collection[id]?.count||0)-1-(state.collection[id]?.breakthrough||0));

@@ -84,3 +84,15 @@ test('favorites require ownership and save import rejects corrupt files without 
  const before=g.state;for(const raw of ['{','{}',JSON.stringify({version:99,state:before}),JSON.stringify({version:2,state:{coins:99,collection:{}}})])assert.equal(g.importSave(raw).ok,false);assert.deepEqual(g.state,before);
  const save=JSON.stringify({version:2,state:{...before,coins:445566,favorite:'r-09',login:{count:4,lastDate:'2026-10-22'}}});assert.equal(g.previewImport(save).state.coins,445566);assert.equal(g.state.coins,before.coins);assert.equal(g.importSave(save).ok,true);assert.equal(g.state.coins,445566);assert.equal(g.state.favorite,'r-09');assert.equal(g.state.login.count,4);
 });
+
+
+test('growth previews match applied levels and breakthroughs without changing or saving progress',()=>{
+ const g=seeded({collection:{'r-01':{count:3,level:4,breakthrough:0}},shards:100});
+ const before=g.state,nextLevel=g.stats('r-01',{level:5});
+ assert.deepEqual(g.state,before);
+ assert.equal(g.levelUp('r-01').ok,true);assert.deepEqual(g.stats('r-01'),nextLevel);
+ const nextBreak=g.stats('r-01',{breakthrough:1}),afterLevel=g.state;
+ assert.deepEqual(g.state,afterLevel);
+ assert.equal(g.breakthrough('r-01').ok,true);assert.deepEqual(g.stats('r-01'),nextBreak);
+ assert.equal(g.stats('r-01',{level:99}).level,30);assert.equal(g.stats('r-01',{breakthrough:99}).breakthrough,6);
+});
